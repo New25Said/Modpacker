@@ -8,7 +8,7 @@ const addedList = document.getElementById('added-list');
 const modCount = document.getElementById('mod-count');
 const btnExport = document.getElementById('btn-export');
 
-// Elementos del Modal
+// Elementos del Modal de Vista Previa
 const modal = document.getElementById('preview-modal');
 const closeModal = document.getElementById('close-modal');
 const modalIcon = document.getElementById('modal-icon');
@@ -18,7 +18,7 @@ const modalGallery = document.getElementById('modal-gallery');
 const modalDescription = document.getElementById('modal-description');
 const modalFooter = document.getElementById('modal-footer');
 
-// BUSCAR MODS
+// BUSCAR MODS EN MODRINTH
 async function searchMods() {
     const query = searchInput.value.trim();
     if (!query) return;
@@ -38,7 +38,7 @@ async function searchMods() {
     }
 }
 
-// MOSTRAR RESULTADOS
+// RENDERIZAR RESULTADOS DE BÚSQUEDA
 function displayResults(mods) {
     if (mods.length === 0) {
         resultsList.innerHTML = `<div class="text-gray-500 text-sm text-center py-8">No se encontraron mods compatibles.</div>`;
@@ -48,15 +48,9 @@ function displayResults(mods) {
     resultsList.innerHTML = '';
     mods.forEach(mod => {
         const item = document.createElement('div');
-        item.className = 'bg-[#161925] p-3 rounded-xl border border-gray-800 flex justify-between items-center gap-2 hover:border-purple-600 transition-all cursor-pointer';
+        // Clase identificadora y diseño responsivo de la tarjeta
+        item.className = 'mod-card bg-[#161925] p-3 rounded-xl border border-gray-800 flex justify-between items-center gap-2 hover:border-purple-600 transition-all cursor-pointer';
         
-        // Clic en la tarjeta abre la vista previa (pero no si hacen clic en el botón "+ Añadir")
-        item.addEventListener('click', (e) => {
-            if (!e.target.closest('.add-btn')) {
-                openPreview(mod.project_id);
-            }
-        });
-
         item.innerHTML = `
             <div class="flex items-center gap-3 pointer-events-none">
                 <img src="${mod.icon_url || 'https://placehold.co/40'}" class="w-10 h-10 rounded-lg object-cover">
@@ -69,29 +63,40 @@ function displayResults(mods) {
                 + Añadir
             </button>
         `;
+
+        // ESCUCHADOR DE CLIC CORREGIDO: Evita abrir vista previa si se clickea el botón "+ Añadir"
+        item.addEventListener('click', (e) => {
+            if (e.target.closest('.add-btn')) {
+                return; 
+            }
+            openPreview(mod.project_id);
+        });
+
         resultsList.appendChild(item);
     });
 }
 
-// ABRIR VISTA PREVIA (MODAL)
+// ABRIR VENTANA EMERGENTE DE VISTA PREVIA (MODAL)
 async function openPreview(projectId) {
     modal.classList.remove('hidden');
-    modalDescription.innerText = "Cargando descripción detallada e imágenes...";
+    modalDescription.innerText = "Cargando detalles e imágenes...";
     modalGallery.innerHTML = '';
     modalFooter.innerHTML = '';
 
     try {
-        // Pedir detalles completos del proyecto en Modrinth
+        // Pedimos la información específica del mod usando su ID
         const response = await fetch(`https://api.modrinth.com/v2/project/${projectId}`);
         const project = await response.json();
 
-        // Actualizar datos básicos en el modal
+        // Aplicamos los datos en el Modal
         modalIcon.src = project.icon_url || 'https://placehold.co/40';
         modalTitle.innerText = project.title;
         modalAuthor.innerText = `Creado por: ${project.organization || 'Autor Desconocido'}`;
-        modalDescription.innerHTML = project.body || "No hay una descripción detallada disponible.";
+        
+        // Renderizar descripción larga (admite formato básico de texto/HTML)
+        modalDescription.innerHTML = project.body || "No hay descripción disponible para este mod.";
 
-        // Cargar galería de imágenes
+        // Cargar galería de fotos oficiales del mod
         if (project.gallery && project.gallery.length > 0) {
             project.gallery.forEach(img => {
                 const imageEl = document.createElement('img');
@@ -100,10 +105,10 @@ async function openPreview(projectId) {
                 modalGallery.appendChild(imageEl);
             });
         } else {
-            modalGallery.innerHTML = `<span class="text-xs text-gray-500">Este mod no tiene imágenes en su galería.</span>`;
+            modalGallery.innerHTML = `<span class="text-xs text-gray-500">Este mod no cuenta con capturas en su galería.</span>`;
         }
 
-        // Agregar botón de acción en el modal
+        // Agregar botón dinámico en la parte inferior de la modal para añadir el mod directamente
         modalFooter.innerHTML = `
             <button onclick="addMod('${project.id}', '${project.title}', '${project.icon_url}'); closePreview();" class="purple-gradient px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-transform">
                 + Añadir a mi Pack
@@ -111,7 +116,7 @@ async function openPreview(projectId) {
         `;
 
     } catch (e) {
-        modalDescription.innerText = "Error al cargar la información del mod.";
+        modalDescription.innerText = "Error al intentar consultar la información extendida en Modrinth.";
     }
 }
 
@@ -122,9 +127,9 @@ function closePreview() {
 closeModal.addEventListener('click', closePreview);
 modal.addEventListener('click', (e) => { if (e.target === modal) closePreview(); });
 
-// AÑADIR MOD A LA LISTA
+// AÑADIR UN MOD A LA LISTA DE EXPORTACIÓN
 async function addMod(projectId, title, iconUrl) {
-    if (selectedMods.some(m => m.id === projectId)) return alert("El mod ya está añadido.");
+    if (selectedMods.some(m => m.id === projectId)) return alert("El mod ya está en la lista de tu pack.");
 
     const mcVersion = document.getElementById('mc-version').value;
     const loader = document.getElementById('loader-type').value;
@@ -135,10 +140,11 @@ async function addMod(projectId, title, iconUrl) {
         const versions = await response.json();
 
         if (versions.length === 0) {
-            alert(`No se encontró un archivo compatible para ${title} en la versión ${mcVersion} (${loader}).`);
+            alert(`Incompatible: No existe un archivo para ${title} disponible en Minecraft ${mcVersion} con Loader ${loader}.`);
             return;
         }
 
+        // Seleccionamos la versión compatible más reciente
         const bestVersion = versions[0];
         const file = bestVersion.files.find(f => f.primary) || bestVersion.files[0];
 
@@ -154,11 +160,11 @@ async function addMod(projectId, title, iconUrl) {
 
         updateAddedList();
     } catch (e) {
-        alert("Error al obtener la versión del mod.");
+        alert("Error de conexión al buscar archivos compatibles del mod.");
     }
 }
 
-// ACTUALIZAR LISTA VISUAL DE AÑADIDOS
+// ACTUALIZAR LA LISTA DE AÑADIDOS EN PANTALLA
 function updateAddedList() {
     modCount.innerText = selectedMods.length;
     if (selectedMods.length === 0) {
@@ -181,30 +187,32 @@ function updateAddedList() {
     });
 }
 
+// REMOVER MOD DE LA LISTA
 function removeMod(index) {
     selectedMods.splice(index, 1);
     updateAddedList();
 }
 
-// BUSCADOR EVENTOS
+// LISTENERS DE BÚSQUEDA
 btnSearch.addEventListener('click', searchMods);
 searchInput.addEventListener('keypress', (e) => { if (e.key === 'Enter') searchMods(); });
 
-// EXPORTAR CON METADATOS DE CREADOR
+// CONSTRUIR Y EXPORTAR EL ARCHIVO .MRPACK
 btnExport.addEventListener('click', async () => {
     if (selectedMods.length === 0) {
-        alert("¡Añade al menos un mod para exportar!");
+        alert("¡Añade al menos un mod compatible antes de exportar!");
         return;
     }
 
     const packName = document.getElementById('pack-name').value;
-    const packAuthor = document.getElementById('pack-author').value; // Autor leído desde la UI
+    const packAuthor = document.getElementById('pack-author').value;
     const packVer = document.getElementById('pack-version').value;
     const mcVersion = document.getElementById('mc-version').value;
     const loader = document.getElementById('loader-type').value;
 
     const zip = new JSZip();
 
+    // Generar formato JSON estructurado oficial de Modrinth (.mrpack)
     const indexJson = {
         formatVersion: 1,
         game: "minecraft",
@@ -232,8 +240,9 @@ btnExport.addEventListener('click', async () => {
     indexJson.dependencies[loader] = "recommended";
 
     zip.file("modrinth.index.json", JSON.stringify(indexJson, null, 2));
-    zip.folder("overrides");
+    zip.folder("overrides"); // Requerido para configuraciones del pack
 
+    // Compilar el archivo ZIP virtual en binario y descargar con formato correcto
     zip.generateAsync({ type: "blob" }).then((content) => {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(content);
