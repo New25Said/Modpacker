@@ -100,8 +100,19 @@ async function openPreview(projectId) {
         modalTitle.innerText = project.title;
         modalAuthor.innerText = `Creado por: ${project.organization || 'Autor Desconocido'}`;
         
-        // Renderizar cuerpo directamente de forma suelta (sin cuadro gris limitante)
-        modalDescription.innerHTML = project.body || "No hay descripción ampliada para este mod.";
+        // Traducir el Markdown de Modrinth a HTML estructurado
+        if (project.body) {
+            modalDescription.innerHTML = marked.parse(project.body);
+            
+            // Estilos CSS rápidos de Tailwind aplicados al Markdown renderizado
+            modalDescription.querySelectorAll('a').forEach(el => el.className = 'text-purple-400 hover:text-purple-300 underline transition-colors');
+            modalDescription.querySelectorAll('h1, h2, h3').forEach(el => el.className = 'text-white font-bold text-base mt-4 mb-2');
+            modalDescription.querySelectorAll('ul').forEach(el => el.className = 'list-disc list-inside space-y-1 my-2 text-gray-300');
+            modalDescription.querySelectorAll('ol').forEach(el => el.className = 'list-decimal list-inside space-y-1 my-2 text-gray-300');
+            modalDescription.querySelectorAll('code').forEach(el => el.className = 'bg-gray-900 text-purple-300 px-1.5 py-0.5 rounded text-xs font-mono');
+        } else {
+            modalDescription.innerHTML = "No hay descripción ampliada para este mod.";
+        }
 
         // Cargar fotos en el arreglo de imágenes
         if (project.gallery && project.gallery.length > 0) {
