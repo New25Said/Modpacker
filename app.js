@@ -1,4 +1,6 @@
 let selectedMods = [];
+let galleryImages = []; // Almacena URLs de la galería activa
+let currentImageIndex = 0; // Índice de la foto seleccionada en el lightbox
 
 // Elementos del DOM
 const searchInput = document.getElementById('search-input');
@@ -17,6 +19,14 @@ const modalAuthor = document.getElementById('modal-author');
 const modalGallery = document.getElementById('modal-gallery');
 const modalDescription = document.getElementById('modal-description');
 const modalFooter = document.getElementById('modal-footer');
+
+// Elementos del Lightbox (Visor con Teclado)
+const lightbox = document.getElementById('lightbox');
+const closeLightbox = document.getElementById('close-lightbox');
+const lightboxImg = document.getElementById('lightbox-img');
+const prevLightbox = document.getElementById('prev-lightbox');
+const nextLightbox = document.getElementById('next-lightbox');
+const lightboxCounter = document.getElementById('lightbox-counter');
 
 // BUSCAR MODS EN MODRINTH
 async function searchMods() {
@@ -48,7 +58,6 @@ function displayResults(mods) {
     resultsList.innerHTML = '';
     mods.forEach(mod => {
         const item = document.createElement('div');
-        // Clase identificadora y diseño responsivo de la tarjeta
         item.className = 'mod-card bg-[#161925] p-3 rounded-xl border border-gray-800 flex justify-between items-center gap-2 hover:border-purple-600 transition-all cursor-pointer';
         
         item.innerHTML = `
@@ -64,7 +73,6 @@ function displayResults(mods) {
             </button>
         `;
 
-        // ESCUCHADOR DE CLIC CORREGIDO: Evita abrir vista previa si se clickea el botón "+ Añadir"
         item.addEventListener('click', (e) => {
             if (e.target.closest('.add-btn')) {
                 return; 
@@ -79,46 +87,94 @@ function displayResults(mods) {
 // ABRIR VENTANA EMERGENTE DE VISTA PREVIA (MODAL)
 async function openPreview(projectId) {
     modal.classList.remove('hidden');
-    modalDescription.innerText = "Cargando detalles e imágenes...";
+    modalDescription.innerHTML = "<p class='text-gray-400 italic text-sm'>Cargando detalles del mod...</p>";
     modalGallery.innerHTML = '';
     modalFooter.innerHTML = '';
+    galleryImages = []; // Limpiar galería previa
 
     try {
-        // Pedimos la información específica del mod usando su ID
         const response = await fetch(`https://api.modrinth.com/v2/project/${projectId}`);
         const project = await response.json();
 
-        // Aplicamos los datos en el Modal
         modalIcon.src = project.icon_url || 'https://placehold.co/40';
         modalTitle.innerText = project.title;
         modalAuthor.innerText = `Creado por: ${project.organization || 'Autor Desconocido'}`;
         
-        // Renderizar descripción larga (admite formato básico de texto/HTML)
-        modalDescription.innerHTML = project.body || "No hay descripción disponible para este mod.";
+        // Renderizar cuerpo directamente de forma suelta (sin cuadro gris limitante)
+        modalDescription.innerHTML = project.body || "No hay descripción ampliada para este mod.";
 
-        // Cargar galería de fotos oficiales del mod
+        // Cargar fotos en el arreglo de imágenes
         if (project.gallery && project.gallery.length > 0) {
-            project.gallery.forEach(img => {
+            project.gallery.forEach((img, idx) => {
+                galleryImages.push(img.url);
+
                 const imageEl = document.createElement('img');
                 imageEl.src = img.url;
-                imageEl.className = 'h-24 rounded-lg object-cover border border-gray-700 flex-shrink-0 hover:scale-105 transition-transform cursor-zoom-in';
+                imageEl.className = 'h-24 w-40 rounded-lg object-cover border border-gray-800 flex-shrink-0 hover:scale-105 hover:border-purple-600 transition-all cursor-zoom-in';
+                
+                // Abrir visor de fotos en el index cliqueado
+                imageEl.addEventListener('click', () => showLightbox(idx));
                 modalGallery.appendChild(imageEl);
             });
         } else {
-            modalGallery.innerHTML = `<span class="text-xs text-gray-500">Este mod no cuenta con capturas en su galería.</span>`;
+            modalGallery.innerHTML = `<span class="text-xs text-gray-600 italic">Este mod no cuenta con capturas en su galería.</span>`;
         }
 
-        // Agregar botón dinámico en la parte inferior de la modal para añadir el mod directamente
+        // Agregar botón de acción de forma FIJA en el footer del modal
         modalFooter.innerHTML = `
-            <button onclick="addMod('${project.id}', '${project.title}', '${project.icon_url}'); closePreview();" class="purple-gradient px-6 py-2 rounded-xl font-bold text-sm hover:scale-105 transition-transform">
+            <button onclick="addMod('${project.id}', '${project.title}', '${project.icon_url}'); closePreview();" class="purple-gradient px-6 py-2.5 rounded-xl font-bold text-sm text-white hover:scale-105 transition-transform">
                 + Añadir a mi Pack
             </button>
         `;
 
     } catch (e) {
-        modalDescription.innerText = "Error al intentar consultar la información extendida en Modrinth.";
+        modalDescription.innerHTML = "<p class='text-red-500 text-sm'>Error al cargar detalles de la API de Modrinth.</p>";
     }
 }
+
+// FUNCIONES DEL VISOR DE IMÁGENES (LIGHTBOX)
+function showLightbox(index) {
+    currentImageIndex = index;
+    lightboxImg.src = galleryImages[currentImageIndex];
+    lightboxCounter.innerText = `${currentImageIndex + 1} / ${galleryImages.length}`;
+    lightbox.classList.remove('hidden');
+}
+
+function closeLightboxView() {
+    lightbox.classList.add('hidden');
+}
+
+function nextImage() {
+    if (galleryImages.length <= 1) return;
+    currentImageIndex = (currentImageIndex + 1) % galleryImages.length;
+    showLightbox(currentImageIndex);
+}
+
+// Navegar atrás
+function prevImage() {
+    if (galleryImages.length <= 1) return;
+    currentImageIndex = (currentImageIndex - 1 + galleryImages.length) % galleryImages.length;
+    showLightbox(currentImageIndex);
+}
+
+// Event Listeners para clicks del Visor
+closeLightbox.addEventListener('click', closeLightboxView);
+prevLightbox.addEventListener('click', (e) => { e.stopPropagation(); prevImage(); });
+nextLightbox.addEventListener('click', (e) => { e.stopPropagation(); nextImage(); });
+lightbox.addEventListener('click', closeLightboxView);
+
+// ESCUCHADOR DE TECLADO (FLECHAS Y ESC)
+document.addEventListener('keydown', (e) => {
+    if (lightbox.classList.contains('hidden')) return;
+
+    if (e.key === "ArrowRight") {
+        nextImage();
+    } else if (e.key === "ArrowLeft") {
+        prevImage();
+    } else if (e.key === "Escape") {
+        closeLightboxView();
+    }
+});
 
 // CERRAR MODAL
 function closePreview() {
@@ -127,7 +183,7 @@ function closePreview() {
 closeModal.addEventListener('click', closePreview);
 modal.addEventListener('click', (e) => { if (e.target === modal) closePreview(); });
 
-// AÑADIR UN MOD A LA LISTA DE EXPORTACIÓN
+// AÑADIR UN MOD A LA LISTA
 async function addMod(projectId, title, iconUrl) {
     if (selectedMods.some(m => m.id === projectId)) return alert("El mod ya está en la lista de tu pack.");
 
@@ -144,7 +200,6 @@ async function addMod(projectId, title, iconUrl) {
             return;
         }
 
-        // Seleccionamos la versión compatible más reciente
         const bestVersion = versions[0];
         const file = bestVersion.files.find(f => f.primary) || bestVersion.files[0];
 
@@ -212,7 +267,6 @@ btnExport.addEventListener('click', async () => {
 
     const zip = new JSZip();
 
-    // Generar formato JSON estructurado oficial de Modrinth (.mrpack)
     const indexJson = {
         formatVersion: 1,
         game: "minecraft",
@@ -240,9 +294,8 @@ btnExport.addEventListener('click', async () => {
     indexJson.dependencies[loader] = "recommended";
 
     zip.file("modrinth.index.json", JSON.stringify(indexJson, null, 2));
-    zip.folder("overrides"); // Requerido para configuraciones del pack
+    zip.folder("overrides");
 
-    // Compilar el archivo ZIP virtual en binario y descargar con formato correcto
     zip.generateAsync({ type: "blob" }).then((content) => {
         const link = document.createElement("a");
         link.href = URL.createObjectURL(content);
