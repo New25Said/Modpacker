@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PackCraft Web | Modpack Creator</title>
+    <!-- Tailwind CSS para diseño rápido y moderno -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- JSZip para empaquetar el .mrpack en el navegador -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <style>
+        body {
+            background-color: #0d0e15;
+            color: #f3f4f6;
+        }
+        .purple-gradient {
+            background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        }
+        .glow:hover {
+            box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
+        }
+    </style>
+</head>
+<body class="font-sans min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="border-b border-gray-800 bg-[#11131e] p-5">
+        <div class="max-w-6xl mx-auto flex justify-between items-center">
+            <h1 class="text-2xl font-bold tracking-wider purple-gradient bg-clip-text text-transparent">
+                ⚡ PackCraft <span class="text-xs text-gray-400 font-mono">v1.0</span>
+            </h1>
+            <span class="text-sm text-gray-400">Crea modpacks .mrpack 100% desde la Web</span>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        <!-- Columna Izquierda: Configuración del Pack -->
+        <div class="bg-[#11131e] p-6 rounded-2xl border border-gray-800 flex flex-col gap-4 h-fit">
+            <h2 class="text-lg font-semibold border-b border-gray-800 pb-2 text-purple-400">⚙️ Configuración</h2>
+            
+            <div>
+                <label class="block text-xs uppercase text-gray-400 font-bold mb-1">Nombre del Modpack</label>
+                <input id="pack-name" type="text" value="Mi Modpack Optimizado" class="w-full bg-[#161925] border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500">
+            </div>
+
+            <div>
+                <label class="block text-xs uppercase text-gray-400 font-bold mb-1">Versión del Modpack</label>
+                <input id="pack-version" type="text" value="1.0.0" class="w-full bg-[#161925] border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500">
+            </div>
+
+            <div class="grid grid-cols-2 gap-2">
+                <div>
+                    <label class="block text-xs uppercase text-gray-400 font-bold mb-1">Minecraft</label>
+                    <input id="mc-version" type="text" value="1.20.1" class="w-full bg-[#161925] border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase text-gray-400 font-bold mb-1">Mod Loader</label>
+                    <select id="loader-type" class="w-full bg-[#161925] border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500">
+                        <option value="fabric">Fabric</option>
+                        <option value="forge">Forge</option>
+                        <option value="neoforge">NeoForge</option>
+                    </select>
+                </div>
+            </div>
+
+            <button id="btn-export" class="w-full purple-gradient py-3 rounded-xl font-semibold mt-4 transition-all duration-300 glow hover:scale-[1.02]">
+                📥 Exportar .mrpack
+            </button>
+        </div>
+
+        <!-- Columna Central: Buscador de Mods (API Modrinth) -->
+        <div class="md:col-span-2 flex flex-col gap-4">
+            
+            <!-- Buscador -->
+            <div class="bg-[#11131e] p-4 rounded-2xl border border-gray-800 flex gap-2">
+                <input id="search-input" type="text" placeholder="Buscar mods en Modrinth (ej. Sodium, Lithium...)" class="flex-1 bg-[#161925] border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500">
+                <button id="btn-search" class="bg-gray-800 hover:bg-gray-700 px-6 rounded-xl font-medium transition-colors">Buscar</button>
+            </div>
+
+            <!-- Resultados y Lista de Agregados -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                
+                <!-- Lista de Resultados -->
+                <div class="bg-[#11131e] p-4 rounded-2xl border border-gray-800">
+                    <h3 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Resultados</h3>
+                    <div id="results-list" class="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2">
+                        <p class="text-gray-500 text-sm text-center py-8">Busca un mod para empezar...</p>
+                    </div>
+                </div>
+
+                <!-- Lista de Añadidos -->
+                <div class="bg-[#11131e] p-4 rounded-2xl border border-gray-800">
+                    <h3 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Mi Pack (<span id="mod-count">0</span>)</h3>
+                    <div id="added-list" class="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2">
+                        <p class="text-gray-500 text-sm text-center py-8">No has añadido mods aún.</p>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- JS de la App -->
+    <script src="app.js"></script>
+</body>
+</html>
