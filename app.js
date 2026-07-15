@@ -101,12 +101,32 @@ async function openPreview(projectId) {
         modalAuthor.innerText = `Creado por: ${project.organization || 'Autor Desconocido'}`;
         
         // Traducir el Markdown de Modrinth a HTML estructurado
+// Traducir el Markdown de Modrinth a HTML estructurado
         if (project.body) {
-            modalDescription.innerHTML = marked.parse(project.body);
+            let htmlContent = "";
+
+            // Si la librería de Marked cargó bien, la usamos
+            if (typeof marked !== 'undefined' && marked.parse) {
+                htmlContent = marked.parse(project.body);
+            } else {
+                // Si falló internet o la caché, usamos este traductor casero de emergencia
+                let rawText = project.body;
+                rawText = rawText.replace(/\*\*\*(.*?)\*\*\*/g, '<strong><em>$1</em></strong>'); // negrita + cursiva
+                rawText = rawText.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); // negrita
+                rawText = rawText.replace(/\*(.*?)\*/g, '<em>$1</em>'); // cursiva
+                rawText = rawText.replace(/__(.*?)__/g, '<u>$1</u>'); // subrayado
+                rawText = rawText.replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2" target="_blank" class="text-purple-400 hover:text-purple-300 underline">$1</a>'); // enlaces
+                rawText = rawText.replace(/!\[(.*?)\]\((.*?)\)/g, '<img src="$2" alt="$1" class="my-2 rounded max-h-48">'); // imágenes incrustadas
+                rawText = rawText.replace(/---\r?\n/g, '<hr class="border-gray-800 my-4">'); // líneas separadoras
+                rawText = rawText.replace(/\r?\n/g, '<br>'); // saltos de línea
+                htmlContent = rawText;
+            }
+
+            modalDescription.innerHTML = htmlContent;
             
-            // Estilos CSS rápidos de Tailwind aplicados al Markdown renderizado
+            // Estilos CSS rápidos de Tailwind aplicados al Markdown renderizado para darle look Premium
             modalDescription.querySelectorAll('a').forEach(el => el.className = 'text-purple-400 hover:text-purple-300 underline transition-colors');
-            modalDescription.querySelectorAll('h1, h2, h3').forEach(el => el.className = 'text-white font-bold text-base mt-4 mb-2');
+            modalDescription.querySelectorAll('h1, h2, h3').forEach(el => el.className = 'text-white font-bold text-base mt-4 mb-2 block border-b border-gray-900 pb-1');
             modalDescription.querySelectorAll('ul').forEach(el => el.className = 'list-disc list-inside space-y-1 my-2 text-gray-300');
             modalDescription.querySelectorAll('ol').forEach(el => el.className = 'list-decimal list-inside space-y-1 my-2 text-gray-300');
             modalDescription.querySelectorAll('code').forEach(el => el.className = 'bg-gray-900 text-purple-300 px-1.5 py-0.5 rounded text-xs font-mono');
