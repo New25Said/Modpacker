@@ -6,6 +6,7 @@
     <title>PackCraft Web | Modpack Creator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         body {
             background-color: #08090f;
@@ -160,13 +161,9 @@
 
     <div id="lightbox" class="fixed inset-0 bg-black/95 flex flex-col justify-center items-center p-4 hidden z-[100] transition-all duration-200">
         <button id="close-lightbox" class="absolute top-6 right-6 text-gray-400 hover:text-white text-3xl font-bold bg-white/5 hover:bg-white/10 w-12 h-12 rounded-full flex items-center justify-center transition-all">&times;</button>
-        
-        <button id="prev-lightbox" class="absolute left-6 text-gray-400 hover:text-white text-3xl bg-white/5 hover:bg-white/10 w-12 h-12 rounded-full flex items-center justify-center transition-all select-none">◀</button>
-        
+        <button id="prev-lightbox" class="absolute left-6 text-gray-400 hover:text-white text-3xl bg-white/5 hover:bg-white/10 w-12 h-12 rounded-full flex items-center justify-center transition-all select-none font-sans">◀</button>
         <img id="lightbox-img" src="" class="max-w-[90vw] max-h-[75vh] rounded-lg object-contain border border-gray-800 shadow-2xl">
-        
-        <button id="next-lightbox" class="absolute right-6 text-gray-400 hover:text-white text-3xl bg-white/5 hover:bg-white/10 w-12 h-12 rounded-full flex items-center justify-center transition-all select-none">▶</button>
-        
+        <button id="next-lightbox" class="absolute right-6 text-gray-400 hover:text-white text-3xl bg-white/5 hover:bg-white/10 w-12 h-12 rounded-full flex items-center justify-center transition-all select-none font-sans">▶</button>
         <div id="lightbox-counter" class="absolute bottom-6 text-xs text-gray-500 tracking-wider bg-gray-900/60 px-4 py-1.5 rounded-full border border-gray-800 font-mono">0 / 0</div>
     </div>
 
