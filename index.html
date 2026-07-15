@@ -4,9 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PackCraft Web | Modpack Creator</title>
-    <!-- Tailwind CSS para diseño rápido y moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- JSZip para empaquetar el .mrpack en el navegador -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
         body {
@@ -19,30 +17,43 @@
         .glow:hover {
             box-shadow: 0 0 15px rgba(124, 58, 237, 0.4);
         }
+        /* Ocultar barra de scroll estética */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #11131e;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #4f46e5;
+            border-radius: 10px;
+        }
     </style>
 </head>
 <body class="font-sans min-h-screen flex flex-col">
 
-    <!-- Header -->
     <header class="border-b border-gray-800 bg-[#11131e] p-5">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
             <h1 class="text-2xl font-bold tracking-wider purple-gradient bg-clip-text text-transparent">
-                ⚡ PackCraft <span class="text-xs text-gray-400 font-mono">v1.0</span>
+                ⚡ PackCraft <span class="text-xs text-gray-400 font-mono">v1.1</span>
             </h1>
             <span class="text-sm text-gray-400">Crea modpacks .mrpack 100% desde la Web</span>
         </div>
     </header>
 
-    <!-- Main Content -->
     <main class="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <!-- Columna Izquierda: Configuración del Pack -->
         <div class="bg-[#11131e] p-6 rounded-2xl border border-gray-800 flex flex-col gap-4 h-fit">
             <h2 class="text-lg font-semibold border-b border-gray-800 pb-2 text-purple-400">⚙️ Configuración</h2>
             
             <div>
                 <label class="block text-xs uppercase text-gray-400 font-bold mb-1">Nombre del Modpack</label>
                 <input id="pack-name" type="text" value="Mi Modpack Optimizado" class="w-full bg-[#161925] border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500">
+            </div>
+
+            <div>
+                <label class="block text-xs uppercase text-gray-400 font-bold mb-1">Creador / Autor</label>
+                <input id="pack-author" type="text" value="Sa1xp" class="w-full bg-[#161925] border border-gray-700 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-purple-500">
             </div>
 
             <div>
@@ -70,30 +81,25 @@
             </button>
         </div>
 
-        <!-- Columna Central: Buscador de Mods (API Modrinth) -->
         <div class="md:col-span-2 flex flex-col gap-4">
             
-            <!-- Buscador -->
             <div class="bg-[#11131e] p-4 rounded-2xl border border-gray-800 flex gap-2">
                 <input id="search-input" type="text" placeholder="Buscar mods en Modrinth (ej. Sodium, Lithium...)" class="flex-1 bg-[#161925] border border-gray-700 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-purple-500">
                 <button id="btn-search" class="bg-gray-800 hover:bg-gray-700 px-6 rounded-xl font-medium transition-colors">Buscar</button>
             </div>
 
-            <!-- Resultados y Lista de Agregados -->
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 
-                <!-- Lista de Resultados -->
                 <div class="bg-[#11131e] p-4 rounded-2xl border border-gray-800">
                     <h3 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Resultados</h3>
-                    <div id="results-list" class="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2">
+                    <div id="results-list" class="flex flex-col gap-2 max-h-[450px] overflow-y-auto pr-2">
                         <p class="text-gray-500 text-sm text-center py-8">Busca un mod para empezar...</p>
                     </div>
                 </div>
 
-                <!-- Lista de Añadidos -->
                 <div class="bg-[#11131e] p-4 rounded-2xl border border-gray-800">
                     <h3 class="text-sm font-semibold text-gray-400 mb-3 uppercase tracking-wider">Mi Pack (<span id="mod-count">0</span>)</h3>
-                    <div id="added-list" class="flex flex-col gap-2 max-h-[400px] overflow-y-auto pr-2">
+                    <div id="added-list" class="flex flex-col gap-2 max-h-[450px] overflow-y-auto pr-2">
                         <p class="text-gray-500 text-sm text-center py-8">No has añadido mods aún.</p>
                     </div>
                 </div>
@@ -102,7 +108,40 @@
         </div>
     </main>
 
-    <!-- JS de la App -->
+    <div id="preview-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
+        <div class="bg-[#11131e] border border-gray-800 w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col">
+            
+            <div class="p-6 border-b border-gray-800 flex justify-between items-start gap-4">
+                <div class="flex items-center gap-4">
+                    <img id="modal-icon" src="" class="w-16 h-16 rounded-xl object-cover border border-gray-700">
+                    <div>
+                        <h2 id="modal-title" class="text-xl font-bold text-white">Nombre del Mod</h2>
+                        <span id="modal-author" class="text-xs text-purple-400">Por Autor</span>
+                    </div>
+                </div>
+                <button id="close-modal" class="text-gray-400 hover:text-white text-2xl font-bold">&times;</button>
+            </div>
+
+            <div class="p-6 space-y-4">
+                <div>
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Galería de Imágenes</h3>
+                    <div id="modal-gallery" class="flex gap-2 overflow-x-auto pb-2 scrollbar-thin">
+                        </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Descripción del Mod</h3>
+                    <div id="modal-description" class="bg-[#161925] p-4 rounded-xl text-sm text-gray-300 max-h-48 overflow-y-auto leading-relaxed">
+                        Cargando detalles...
+                    </div>
+                </div>
+            </div>
+
+            <div id="modal-footer" class="p-6 border-t border-gray-800 flex justify-end">
+                </div>
+        </div>
+    </div>
+
     <script src="app.js"></script>
 </body>
 </html>
