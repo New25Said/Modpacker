@@ -3,129 +3,118 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PackCraft Web | Modrinth Style</title>
+    <title>PackCraft Web | Modpack Creator</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
     <style>
-        /* Paleta de colores oficial de Modrinth */
         body {
-            background-color: #111217; /* Fondo ultra oscuro de Modrinth */
-            color: #f1f5f9;
+            background-color: #08090f;
+            color: #f3f4f6;
         }
-        .modrinth-green {
-            background-color: #00af5c;
+        .purple-gradient {
+            background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
         }
-        .modrinth-green:hover {
-            background-color: #00c070;
+        .glow:hover {
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.4);
         }
-        .text-modrinth {
-            color: #00c070;
-        }
-        .border-modrinth {
-            border-color: #00af5c;
-        }
-        .bg-card {
-            background-color: #1c1e24; /* Gris de las tarjetas en Modrinth */
-        }
-        .bg-input {
-            background-color: #14151a;
-        }
-        .glow-green:hover {
-            box-shadow: 0 0 15px rgba(0, 192, 112, 0.3);
-        }
-        /* Personalización de la barra de scroll al estilo Modrinth */
+        /* Barra de scroll de la descripción y listas */
         ::-webkit-scrollbar {
             width: 6px;
             height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: #111217;
+            background: #0d0e15;
+            border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb {
-            background: #2d3139;
+            background: #6366f1;
             border-radius: 10px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: #00af5c;
+            background: #a855f7;
         }
     </style>
 </head>
-<body class="font-sans min-h-screen flex flex-col">
+<body class="font-sans min-h-screen flex flex-col justify-between">
 
-    <header class="border-b border-[#24262f] bg-[#14151a] p-4">
+    <header class="border-b border-gray-900 bg-[#0c0d14] p-5">
         <div class="max-w-6xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <div class="modrinth-green p-2 rounded-xl text-black font-black flex items-center justify-center w-9 h-9">
-                    ⚡
-                </div>
-                <h1 class="text-xl font-bold tracking-tight text-white flex items-center gap-2">
-                    packcraft <span class="text-xs bg-[#24262f] text-gray-400 px-2 py-0.5 rounded-full font-mono">v1.1</span>
-                </h1>
-            </div>
-            <span class="text-xs text-gray-400 font-medium hidden sm:inline-block">Modpack Creator para Modrinth</span>
+            <h1 class="text-2xl font-black tracking-wider purple-gradient bg-clip-text text-transparent flex items-center gap-2">
+                ⚡ PACKCRAFT <span class="text-xs bg-purple-950 text-purple-300 px-2 py-0.5 rounded-full font-mono border border-purple-800">v1.2</span>
+            </h1>
+            <span class="text-xs md:text-sm text-gray-500 font-medium">Crea tus archivos .mrpack en segundos</span>
         </div>
     </header>
 
     <main class="flex-1 max-w-6xl w-full mx-auto p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         
-        <div class="bg-card p-6 rounded-2xl border border-[#24262f] flex flex-col gap-4 h-fit">
-            <h2 class="text-sm font-bold uppercase tracking-wider text-gray-400 border-b border-[#24262f] pb-3">⚙️ Configuración del Pack</h2>
-            
+        <div class="bg-[#0c0d14] p-6 rounded-2xl border border-gray-900 flex flex-col justify-between h-[510px]">
             <div>
-                <label class="block text-xs uppercase text-gray-400 font-bold mb-1.5">Nombre del Modpack</label>
-                <input id="pack-name" type="text" value="Mi Modpack Optimizado" class="w-full bg-input border border-[#2d3139] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#00af5c] transition-colors">
-            </div>
-
-            <div>
-                <label class="block text-xs uppercase text-gray-400 font-bold mb-1.5">Creador / Autor</label>
-                <input id="pack-author" type="text" value="Sa1xp" class="w-full bg-input border border-[#2d3139] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#00af5c] transition-colors">
-            </div>
-
-            <div>
-                <label class="block text-xs uppercase text-gray-400 font-bold mb-1.5">Versión del Modpack</label>
-                <input id="pack-version" type="text" value="1.0.0" class="w-full bg-input border border-[#2d3139] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#00af5c] transition-colors">
-            </div>
-
-            <div class="grid grid-cols-2 gap-2">
-                <div>
-                    <label class="block text-xs uppercase text-gray-400 font-bold mb-1.5">Minecraft</label>
-                    <input id="mc-version" type="text" value="1.20.1" class="w-full bg-input border border-[#2d3139] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#00af5c] transition-colors">
+                <div class="flex items-center gap-2 border-b border-gray-900 pb-3 mb-4">
+                    <span class="text-lg">⚙️</span>
+                    <h2 class="text-md font-bold text-gray-200 uppercase tracking-wider">Configuración</h2>
                 </div>
-                <div>
-                    <label class="block text-xs uppercase text-gray-400 font-bold mb-1.5">Mod Loader</label>
-                    <select id="loader-type" class="w-full bg-input border border-[#2d3139] rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-[#00af5c] transition-colors">
-                        <option value="fabric">Fabric</option>
-                        <option value="forge">Forge</option>
-                        <option value="neoforge">NeoForge</option>
-                    </select>
+                
+                <div class="space-y-3">
+                    <div>
+                        <label class="block text-[10px] uppercase text-gray-500 font-bold tracking-wider mb-1">Nombre del Modpack</label>
+                        <input id="pack-name" type="text" value="Mi Modpack Optimizado" class="w-full bg-[#11121b] border border-gray-800 rounded-xl px-3.5 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-purple-600 transition-colors">
+                    </div>
+
+                    <div>
+                        <label class="block text-[10px] uppercase text-gray-500 font-bold tracking-wider mb-1">Creador / Autor</label>
+                        <input id="pack-author" type="text" value="Sa1xp" class="w-full bg-[#11121b] border border-gray-800 rounded-xl px-3.5 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-purple-600 transition-colors">
+                    </div>
+
+                    <div class="grid grid-cols-3 gap-2">
+                        <div class="col-span-1">
+                            <label class="block text-[10px] uppercase text-gray-500 font-bold tracking-wider mb-1">Versión</label>
+                            <input id="pack-version" type="text" value="1.0.0" class="w-full bg-[#11121b] border border-gray-800 rounded-xl px-2 py-2.5 text-center text-sm text-gray-200 focus:outline-none focus:border-purple-600 transition-colors">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] uppercase text-gray-500 font-bold tracking-wider mb-1">Minecraft</label>
+                            <input id="mc-version" type="text" value="1.20.1" class="w-full bg-[#11121b] border border-gray-800 rounded-xl px-2 py-2.5 text-center text-sm text-gray-200 focus:outline-none focus:border-purple-600 transition-colors">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-[10px] uppercase text-gray-500 font-bold tracking-wider mb-1">Loader</label>
+                            <select id="loader-type" class="w-full bg-[#11121b] border border-gray-800 rounded-xl px-2 py-2.5 text-sm text-gray-200 focus:outline-none focus:border-purple-600 transition-colors">
+                                <option value="fabric">Fabric</option>
+                                <option value="forge">Forge</option>
+                                <option value="neoforge">NeoForge</option>
+                            </select>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            <button id="btn-export" class="w-full modrinth-green text-black py-3 rounded-xl font-bold mt-4 transition-all duration-300 glow-green hover:scale-[1.01]">
-                📥 Exportar .mrpack
+            <button id="btn-export" class="w-full purple-gradient py-3.5 rounded-xl font-bold text-sm text-white transition-all duration-300 glow hover:scale-[1.01] active:scale-[0.99] mt-4">
+                📥 Exportar archivo .mrpack
             </button>
         </div>
 
         <div class="md:col-span-2 flex flex-col gap-4">
             
-            <div class="bg-card p-4 rounded-2xl border border-[#24262f] flex gap-2">
-                <input id="search-input" type="text" placeholder="Buscar mods en Modrinth (ej. Sodium, Lithium...)" class="flex-1 bg-input border border-[#2d3139] rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-[#00af5c] transition-colors">
-                <button id="btn-search" class="bg-[#2d3139] hover:bg-[#3f4450] px-6 rounded-xl font-semibold text-sm transition-colors text-white">Buscar</button>
+            <div class="bg-[#0c0d14] p-3.5 rounded-2xl border border-gray-900 flex gap-2">
+                <input id="search-input" type="text" placeholder="Buscar mods de optimización (ej. Sodium, Lithium...)" class="flex-1 bg-[#11121b] border border-gray-800 rounded-xl px-4 py-3 text-sm text-gray-200 focus:outline-none focus:border-purple-600 transition-colors">
+                <button id="btn-search" class="bg-purple-900/30 hover:bg-purple-900/50 text-purple-300 border border-purple-800/50 px-6 rounded-xl font-semibold text-sm transition-all duration-200">Buscar</button>
             </div>
 
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
                 
-                <div class="bg-card p-4 rounded-2xl border border-[#24262f] flex flex-col">
-                    <h3 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Resultados</h3>
-                    <div id="results-list" class="flex flex-col gap-2 max-h-[450px] overflow-y-auto pr-1">
-                        <p class="text-gray-500 text-sm text-center py-8">Busca un mod para empezar...</p>
+                <div class="bg-[#0c0d14] p-5 rounded-2xl border border-gray-900 flex flex-col h-[420px]">
+                    <h3 class="text-xs font-bold text-gray-400 mb-4 uppercase tracking-wider border-b border-gray-900 pb-2">🔍 Resultados</h3>
+                    <div id="results-list" class="flex-1 flex flex-col gap-2 overflow-y-auto pr-1">
+                        <p class="text-gray-600 text-xs text-center my-auto">Escribe algo en el buscador...</p>
                     </div>
                 </div>
 
-                <div class="bg-card p-4 rounded-2xl border border-[#24262f] flex flex-col">
-                    <h3 class="text-xs font-bold text-gray-400 mb-3 uppercase tracking-wider">Mi Pack (<span id="mod-count" class="text-modrinth">0</span>)</h3>
-                    <div id="added-list" class="flex flex-col gap-2 max-h-[450px] overflow-y-auto pr-1">
-                        <p class="text-gray-500 text-sm text-center py-8">No has añadido mods aún.</p>
+                <div class="bg-[#0c0d14] p-5 rounded-2xl border border-gray-900 flex flex-col h-[420px]">
+                    <h3 class="text-xs font-bold text-gray-400 mb-4 uppercase tracking-wider border-b border-gray-900 pb-2 flex justify-between items-center">
+                        <span>📦 Mi Lista</span>
+                        <span id="mod-count" class="bg-purple-950 text-purple-300 px-2.5 py-0.5 rounded-full text-[10px] border border-purple-800 font-mono">0</span>
+                    </h3>
+                    <div id="added-list" class="flex-1 flex flex-col gap-2 overflow-y-auto pr-1">
+                        <p class="text-gray-600 text-xs text-center my-auto">Tu lista está vacía.</p>
                     </div>
                 </div>
 
@@ -133,39 +122,45 @@
         </div>
     </main>
 
-    <div id="preview-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 hidden z-50">
-        <div class="bg-[#14151a] border border-[#24262f] w-full max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto flex flex-col">
+    <div id="preview-modal" class="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center p-4 hidden z-50 transition-all duration-300">
+        <div class="bg-[#0c0d14] border border-gray-800 w-full max-w-2xl rounded-2xl max-h-[85vh] overflow-hidden flex flex-col shadow-[0_0_50px_rgba(124,58,237,0.15)]">
             
-            <div class="p-6 border-b border-[#24262f] flex justify-between items-start gap-4">
+            <div class="p-6 bg-[#0f111a] border-b border-gray-800 flex justify-between items-center">
                 <div class="flex items-center gap-4">
-                    <img id="modal-icon" src="" class="w-16 h-16 rounded-xl object-cover border border-[#2d3139]">
+                    <img id="modal-icon" src="" class="w-14 h-14 rounded-xl object-cover border border-gray-700 shadow-md">
                     <div>
-                        <h2 id="modal-title" class="text-xl font-bold text-white">Nombre del Mod</h2>
-                        <span id="modal-author" class="text-xs text-modrinth font-medium">Por Autor</span>
+                        <h2 id="modal-title" class="text-lg font-black text-white tracking-wide">Nombre del Mod</h2>
+                        <span id="modal-author" class="text-xs text-purple-400 font-medium">Por Autor</span>
                     </div>
                 </div>
-                <button id="close-modal" class="text-gray-400 hover:text-white text-2xl font-bold transition-colors">&times;</button>
+                <button id="close-modal" class="text-gray-500 hover:text-white bg-gray-900/50 hover:bg-gray-800 w-8 h-8 rounded-full flex items-center justify-center text-lg font-bold transition-all">&times;</button>
             </div>
 
-            <div class="p-6 space-y-4">
+            <div class="p-6 overflow-y-auto space-y-5 flex-1">
                 <div>
-                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Galería de Imágenes</h3>
-                    <div id="modal-gallery" class="flex gap-2 overflow-x-auto pb-2">
+                    <h3 class="text-[10px] uppercase text-gray-500 font-bold tracking-wider mb-2.5">Galería de Capturas</h3>
+                    <div id="modal-gallery" class="flex gap-3 overflow-x-auto pb-2">
                         </div>
                 </div>
 
                 <div>
-                    <h3 class="text-xs uppercase text-gray-400 font-bold mb-2">Descripción del Mod</h3>
-                    <div id="modal-description" class="bg-card p-4 rounded-xl text-sm text-gray-300 max-h-48 overflow-y-auto leading-relaxed border border-[#24262f]">
-                        Cargando detalles...
+                    <h3 class="text-[10px] uppercase text-gray-500 font-bold tracking-wider mb-2.5">Detalles del Mod</h3>
+                    <div id="modal-description" class="bg-[#11121b] p-4 rounded-xl border border-gray-900 text-sm text-gray-300 leading-relaxed max-h-60 overflow-y-auto font-sans">
+                        Cargando...
                     </div>
                 </div>
             </div>
 
-            <div id="modal-footer" class="p-6 border-t border-[#24262f] flex justify-end">
-                </div>
+            <div class="p-4 bg-[#0f111a] border-t border-gray-800 flex justify-end">
+                <div id="modal-footer">
+                    </div>
+            </div>
         </div>
     </div>
+
+    <footer class="text-center py-4 border-t border-gray-900 bg-[#06070a]">
+        <p class="text-[11px] text-gray-600 font-medium">PackCraft Web — Diseñado para Sa1xp con ♥</p>
+    </footer>
 
     <script src="app.js"></script>
 </body>
